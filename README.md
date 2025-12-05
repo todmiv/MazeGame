@@ -50,4 +50,4 @@ python Maze_game.py
 - Старайтесь придерживаться PEP 8
 
 ## Лицензия
-MIT — см. файл LICENSE.
+MIT — см. файл LICENSE. 

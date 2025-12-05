@@ -1,15 +1,25 @@
+"""
+Maze Game — простой лабиринт на Pygame.
+
+Запустит�� файл, перемещайте зелёного игрока стрелками. При столкновении со стеной (X) — возврат в старт.
+Красная клетка (E) — выход. Размер клетки = player_size.
+
+Лицензия: MIT (см. LICENSE)
+"""
+
 import pygame
 
-# Initialize Pygame
+# 1) Инициализация Pygame и системных модулей
 pygame.init()
 
-# Set up the screen
-screen_width = 800
-screen_height = 600
+# 2) Параметры окна отрисовки
+screen_width = 800  # ширина окна в пикселях
+screen_height = 600  # высота окна в пикселях
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Maze Game")
 
-# Set up the maze
+# 3) Описание лабиринта (символьная карта):
+#    X — стена; . — пустое пространство; E — выход
 maze = [
     "XXXXXXXXXXXXXXXXXXXX",
     "X...........X......X",
@@ -18,66 +28,69 @@ maze = [
     "XXXXXXXXXXXXXXXXXXXX"
 ]
 
-# Define colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
+# 4) Цветовая палитра (RGB)
+BLACK = (0, 0, 0)      # стены
+WHITE = (255, 255, 255)  # фон
+RED = (255, 0, 0)      # выход
+GREEN = (0, 255, 0)    # игрок
 
-# Set up the player
-player_size = 20
-player_x = 50
-player_y = 50
+# 5) Параметры игрока
+player_size = 20  # сторона квадрата игрока и клетки карты (в пиксел��х)
+player_x = 50     # стартовая позиция X игрока (в пикселях)
+player_y = 50     # стартовая позиция Y игрока (в пикселях)
+player_speed = 5  # скорость перемещения (пикс/кадр)
 
-# Set up the clock
+# 6) Таймер для контроля FPS
 clock = pygame.time.Clock()
 
-# Game loop
+# 7) Игровой цикл
 running = True
 while running:
-    # Handle events
+    # 7.1) Обработка событий окна
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Move the player
+    # 7.2) Считываем состояние клавиш и двигаем игрока
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        player_x -= 5
+        player_x -= player_speed
     if keys[pygame.K_RIGHT]:
-        player_x += 5
+        player_x += player_speed
     if keys[pygame.K_UP]:
-        player_y -= 5
+        player_y -= player_speed
     if keys[pygame.K_DOWN]:
-        player_y += 5
+        player_y += player_speed
 
-    # Check for collision with walls
+    # 7.3) Проверка столкновений со стенами: если попали в стену — возврат к старту
     for row in range(len(maze)):
         for col in range(len(maze[row])):
             if maze[row][col] == "X":
-                wall_rect = pygame.Rect(col*player_size, row*player_size, player_size, player_size)
+                wall_rect = pygame.Rect(col * player_size, row * player_size, player_size, player_size)
+                # collidepoint проверяет, попадает ли точка (левый-верхний угол игрока) внутрь прямоуг��льника стены
                 if wall_rect.collidepoint(player_x, player_y):
                     player_x, player_y = 50, 50
 
-    # Draw the screen
+    # 7.4) Отрисовка сцены: фон, стены, выход и игрок
     screen.fill(WHITE)
     for row in range(len(maze)):
         for col in range(len(maze[row])):
-            if maze[row][col] == "X":
-                pygame.draw.rect(screen, BLACK, (col*player_size, row*player_size, player_size, player_size))
-            elif maze[row][col] == "E":
-                pygame.draw.rect(screen, RED, (col*player_size, row*player_size, player_size, player_size))
-    pygame.draw.rect(screen, (0, 255, 0), (player_x, player_y, player_size, player_size))
+            tile = maze[row][col]
+            if tile == "X":
+                pygame.draw.rect(screen, BLACK, (col * player_size, row * player_size, player_size, player_size))
+            elif tile == "E":
+                pygame.draw.rect(screen, RED, (col * player_size, row * player_size, player_size, player_size))
 
-    # Check for win condition
-    if maze[int(player_y/player_size)][int(player_x/player_size)] == "E":
+    pygame.draw.rect(screen, GREEN, (player_x, player_y, player_size, player_size))
+
+    # 7.5) Проверка победы: если клетка под игроком равна 'E' — победа
+    if maze[int(player_y / player_size)][int(player_x / player_size)] == "E":
         print("You win!")
         running = False
 
-    # Update the screen
+    # 7.6) Обновление экрана и ограничение FPS
     pygame.display.update()
-
-    # Set the frame rate
     clock.tick(60)
 
-# Quit Pygame
+# 8) Корректное завершение работы Pygame
 pygame.quit()
